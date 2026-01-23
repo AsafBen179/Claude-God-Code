@@ -129,3 +129,17 @@ def is_python_312_or_higher() -> bool:
     """Check if Python version is 3.12 or higher (required for Graphiti)."""
     major, minor, _ = get_python_version()
     return major >= 3 and minor >= 12
+
+
+def is_git_repo(path: Path) -> bool:
+    """
+    Check if a directory is a git repository.
+
+    Args:
+        path: Directory to check
+
+    Returns:
+        True if directory is a git repository
+    """
+    git_dir = path / ".git"
+    return git_dir.exists() and (git_dir.is_dir() or git_dir.is_file())
