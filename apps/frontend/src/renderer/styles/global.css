@@ -1,117 +1,448 @@
 /**
  * Global Styles for Claude God Code
  *
- * Part of Claude God Code - Autonomous Excellence
+ * Professional Design System - Autonomous Excellence
  */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom base styles */
+/* ============================================
+   CSS Custom Properties - Design Tokens
+   ============================================ */
 @layer base {
+  :root {
+    /* Motion tokens */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 400ms;
+
+    /* Typography scale (1.25 ratio) */
+    --font-display: 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  /* God Mode Dark Theme */
+  :root {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 96%;
+
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 55%;
+
+    --border: 217 33% 18%;
+    --ring: 199 89% 48%;
+
+    /* Primary - Cyan energy */
+    --primary: 199 89% 48%;
+    --primary-foreground: 222 47% 4%;
+
+    /* Accent - Magenta highlights */
+    --accent: 292 84% 61%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Semantic states */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 100%;
+  }
+
+  /* Base resets */
+  *,
+  *::before,
+  *::after {
+    border-color: hsl(var(--border));
+  }
+
   html {
-    @apply h-full;
+    @apply h-full antialiased;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply h-full bg-god-dark-950 text-god-dark-100;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    @apply h-full bg-background text-foreground;
+    font-family: var(--font-body);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   #root {
     @apply h-full;
   }
 
-  /* Custom scrollbar */
+  /* Typography defaults */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    font-family: var(--font-display);
+  }
+
+  /* Custom scrollbar - Modern flat design */
   ::-webkit-scrollbar {
     @apply w-2 h-2;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-god-dark-900;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-god-dark-600 rounded-full;
+    @apply bg-muted rounded-full;
+    transition: background-color var(--duration-fast) ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-god-dark-500;
+    @apply bg-muted-foreground/30;
   }
 
-  /* Selection color */
+  /* Selection */
   ::selection {
-    @apply bg-god-primary-500/30;
+    @apply bg-primary/30 text-foreground;
+  }
+
+  /* Focus visible for keyboard navigation */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
-/* Custom component styles */
+/* ============================================
+   Reduced Motion Support
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   Component Layer - Design System
+   ============================================ */
 @layer components {
+  /* ------------------------------------
+     Button Component
+     ------------------------------------ */
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-god-dark-900;
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-4 py-2.5 rounded-lg;
+    @apply text-sm font-medium;
+    @apply transition-all duration-200 ease-out;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+    @apply select-none;
   }
 
   .btn-primary {
-    @apply bg-god-primary-600 text-white;
-    @apply hover:bg-god-primary-500;
-    @apply focus:ring-god-primary-500;
+    @apply bg-primary text-primary-foreground;
+    @apply hover:bg-primary/90;
+    @apply active:bg-primary/80 active:scale-[0.98];
+    @apply shadow-sm hover:shadow-md hover:shadow-primary/20;
   }
 
   .btn-secondary {
-    @apply bg-god-dark-700 text-god-dark-100;
-    @apply hover:bg-god-dark-600;
-    @apply focus:ring-god-dark-500;
+    @apply bg-muted text-foreground;
+    @apply border border-border;
+    @apply hover:bg-muted/80 hover:border-border/80;
+    @apply active:bg-muted/60 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-muted-foreground;
+    @apply hover:bg-muted hover:text-foreground;
+    @apply active:bg-muted/80;
   }
 
   .btn-accent {
-    @apply bg-god-accent-600 text-white;
-    @apply hover:bg-god-accent-500;
-    @apply focus:ring-god-accent-500;
+    @apply bg-accent text-accent-foreground;
+    @apply hover:bg-accent/90;
+    @apply active:bg-accent/80 active:scale-[0.98];
+    @apply shadow-sm hover:shadow-md hover:shadow-accent/20;
   }
 
+  .btn-danger {
+    @apply bg-danger text-danger-foreground;
+    @apply hover:bg-danger/90;
+    @apply active:bg-danger/80 active:scale-[0.98];
+  }
+
+  /* Button sizes */
+  .btn-sm {
+    @apply h-8 px-3 text-xs gap-1.5;
+  }
+
+  .btn-md {
+    @apply h-10 px-4 text-sm gap-2;
+  }
+
+  .btn-lg {
+    @apply h-12 px-6 text-base gap-2.5;
+  }
+
+  /* Icon button */
+  .btn-icon {
+    @apply p-2 aspect-square;
+  }
+
+  /* ------------------------------------
+     Card Component - Glassmorphism
+     ------------------------------------ */
   .card {
-    @apply bg-god-dark-800/50 backdrop-blur-sm rounded-xl border border-god-dark-700/50;
-    @apply shadow-lg shadow-black/20;
-  }
-
-  .input {
-    @apply bg-god-dark-900 border border-god-dark-700 rounded-lg px-4 py-2;
-    @apply text-god-dark-100 placeholder-god-dark-500;
-    @apply focus:outline-none focus:ring-2 focus:ring-god-primary-500 focus:border-transparent;
+    @apply bg-card/80 backdrop-blur-md;
+    @apply rounded-xl;
+    @apply border border-border/50;
+    @apply shadow-lg shadow-black/10;
     @apply transition-all duration-200;
   }
 
-  /* Status indicators */
+  .card-elevated {
+    @apply bg-card/90 backdrop-blur-lg;
+    @apply shadow-xl shadow-black/20;
+    @apply border-border/30;
+  }
+
+  .card-interactive {
+    @apply cursor-pointer;
+    @apply hover:bg-card hover:border-border hover:shadow-xl;
+    @apply active:scale-[0.99];
+  }
+
+  .card-glow {
+    @apply relative overflow-hidden;
+  }
+
+  .card-glow::before {
+    content: '';
+    @apply absolute inset-0 opacity-0;
+    @apply bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10;
+    @apply transition-opacity duration-300;
+  }
+
+  .card-glow:hover::before {
+    @apply opacity-100;
+  }
+
+  /* ------------------------------------
+     Input Component
+     ------------------------------------ */
+  .input {
+    @apply w-full;
+    @apply bg-background border border-border rounded-lg;
+    @apply px-4 py-2.5;
+    @apply text-sm text-foreground placeholder:text-muted-foreground;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-primary;
+    @apply hover:border-border/80;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-error {
+    @apply border-danger focus:ring-danger/30 focus:border-danger;
+  }
+
+  .input-success {
+    @apply border-success focus:ring-success/30 focus:border-success;
+  }
+
+  /* ------------------------------------
+     Status Indicators
+     ------------------------------------ */
   .status-dot {
     @apply w-2 h-2 rounded-full;
+    @apply transition-all duration-300;
   }
 
   .status-connected {
-    @apply bg-green-500 shadow-lg shadow-green-500/50;
+    @apply bg-success;
+    box-shadow: 0 0 8px hsl(var(--success) / 0.6);
   }
 
   .status-disconnected {
-    @apply bg-red-500 shadow-lg shadow-red-500/50;
+    @apply bg-danger;
+    box-shadow: 0 0 8px hsl(var(--danger) / 0.6);
   }
 
   .status-pending {
-    @apply bg-yellow-500 shadow-lg shadow-yellow-500/50 animate-pulse;
+    @apply bg-warning animate-pulse;
+    box-shadow: 0 0 8px hsl(var(--warning) / 0.6);
+  }
+
+  /* Larger status badge */
+  .status-badge {
+    @apply inline-flex items-center gap-2;
+    @apply px-3 py-1 rounded-full;
+    @apply text-xs font-medium;
+  }
+
+  .status-badge-success {
+    @apply bg-success/10 text-success border border-success/20;
+  }
+
+  .status-badge-danger {
+    @apply bg-danger/10 text-danger border border-danger/20;
+  }
+
+  .status-badge-warning {
+    @apply bg-warning/10 text-warning border border-warning/20;
+  }
+
+  /* ------------------------------------
+     Divider
+     ------------------------------------ */
+  .divider {
+    @apply w-full h-px bg-border;
+  }
+
+  .divider-vertical {
+    @apply w-px h-full bg-border;
+  }
+
+  /* ------------------------------------
+     Loading Spinner
+     ------------------------------------ */
+  .spinner {
+    @apply w-5 h-5 border-2 border-current rounded-full;
+    @apply border-t-transparent;
+    @apply animate-spin;
+  }
+
+  .spinner-sm {
+    @apply w-4 h-4 border-[1.5px];
+  }
+
+  .spinner-lg {
+    @apply w-8 h-8 border-[3px];
   }
 }
 
-/* Utility classes */
+/* ============================================
+   Utility Layer - Custom Utilities
+   ============================================ */
 @layer utilities {
+  /* Text gradient */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-god-primary-400 to-god-accent-400;
+    @apply bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary to-accent;
   }
 
+  .text-gradient-subtle {
+    @apply bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-foreground to-muted-foreground;
+  }
+
+  /* Glow effects */
   .glow-primary {
-    box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
   }
 
   .glow-accent {
-    box-shadow: 0 0 20px rgba(217, 70, 239, 0.3);
+    box-shadow: 0 0 20px hsl(var(--accent) / 0.4);
   }
+
+  .glow-border {
+    @apply relative;
+  }
+
+  .glow-border::after {
+    content: '';
+    @apply absolute inset-0 rounded-[inherit];
+    @apply bg-gradient-to-r from-primary/50 via-accent/50 to-primary/50;
+    @apply opacity-0 blur-md -z-10;
+    @apply transition-opacity duration-300;
+  }
+
+  .glow-border:hover::after {
+    @apply opacity-100;
+  }
+
+  /* Glassmorphism */
+  .glass {
+    @apply bg-background/60 backdrop-blur-xl;
+    @apply border border-border/30;
+  }
+
+  .glass-strong {
+    @apply bg-background/80 backdrop-blur-2xl;
+    @apply border border-border/50;
+  }
+
+  /* Noise texture overlay */
+  .noise {
+    position: relative;
+  }
+
+  .noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  /* Shimmer effect for loading states */
+  .shimmer {
+    @apply relative overflow-hidden;
+  }
+
+  .shimmer::after {
+    content: '';
+    @apply absolute inset-0;
+    @apply bg-gradient-to-r from-transparent via-white/10 to-transparent;
+    @apply animate-shimmer;
+    background-size: 200% 100%;
+  }
+
+  /* Screen reader only */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Focus ring utility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Interactive surface */
+  .surface-interactive {
+    @apply transition-all duration-200;
+    @apply hover:bg-muted/50;
+    @apply active:bg-muted;
+  }
+
+  /* Staggered animation children */
+  .stagger-children > * {
+    @apply animate-fade-in;
+    animation-fill-mode: backwards;
+  }
+
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 250ms; }
 }
