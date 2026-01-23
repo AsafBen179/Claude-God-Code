@@ -539,4 +539,76 @@ python run.py --spec <spec-id> --merge
 
 ---
 
+## Skills System
+
+### Overview
+
+The Skills System provides modular, domain-specific protocols that enhance agent capabilities. Skills are automatically discovered and applied based on task context.
+
+### Architecture
+
+```
+apps/backend/skills/
+├── __init__.py          # Skills module exports
+├── loader.py            # SkillLoader and SkillRegistry
+└── frontend_design/     # Professional Frontend Design skill
+    ├── __init__.py
+    ├── SKILL.md         # Skill definition and standards
+    ├── EXAMPLES.md      # Before/After code examples
+    └── PROMPT.md        # System prompt injection
+```
+
+### Active Skills
+
+#### Professional Frontend Design (`frontend_design`)
+
+**Applicability**: Automatically applied to frontend tasks
+
+**Detection Triggers**:
+- Task keywords: `frontend`, `ui`, `component`, `react`, `vue`, `css`, `tailwind`, `button`, `form`, `modal`, `responsive`, `design`
+- File extensions: `.tsx`, `.jsx`, `.vue`, `.svelte`, `.css`, `.scss`, `.html`
+
+**Standards Enforced**:
+1. **Aesthetic Excellence**: Typography, color systems, motion, spatial composition
+2. **Accessibility (A11Y)**: WCAG AA compliance, keyboard navigation, screen reader support, focus management
+3. **Tailwind Best Practices**: Utility organization, responsive prefixes, design tokens
+4. **Responsive Design**: Mobile-first approach, touch targets, breakpoint strategy
+5. **Performance**: Core Web Vitals targets (LCP < 2.5s, FID < 100ms, CLS < 0.1)
+
+**Integration**:
+```python
+from skills import SkillRegistry
+
+# Automatic discovery
+registry = SkillRegistry()
+skills = registry.get_applicable_skills(task_description, file_paths)
+
+# Manual loading
+skill = registry.get_skill("frontend_design")
+prompt = skill.get_full_prompt()
+```
+
+### Agent Integration
+
+Agents automatically load applicable skills via `BaseAgent`:
+
+```python
+class CoderAgent(BaseAgent):
+    async def run(self):
+        # Skills are auto-loaded based on task
+        self.load_applicable_skills(task_description, file_paths)
+
+        # Get combined prompt for all loaded skills
+        skills_prompt = self.get_skills_prompt()
+```
+
+### Spec Pipeline Integration
+
+During the **Specification Writing** phase, the pipeline:
+1. Discovers applicable skills based on task description and file context
+2. Records skills in `skills.json` within the spec directory
+3. Includes skill information in the generated `spec.md`
+
+---
+
 *Claude God Code - Autonomous Excellence*

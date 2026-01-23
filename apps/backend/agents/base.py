@@ -12,7 +12,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Callable, Optional, Protocol
+
+if TYPE_CHECKING:
+    from skills import Skill, SkillRegistry
 
 
 class AgentPhase(Enum):
@@ -302,11 +305,72 @@ class AgentContext:
 class BaseAgent:
     """Base class for all agents in Claude God Code."""
 
+    _skill_registry: Optional["SkillRegistry"] = None
+
     def __init__(self, context: AgentContext) -> None:
         """Initialize agent with context."""
         self.context = context
         self.state = AgentState()
         self._agent_id = f"{self.__class__.__name__}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        self._loaded_skills: list["Skill"] = []
+
+    @classmethod
+    def get_skill_registry(cls) -> "SkillRegistry":
+        """Get or create the shared skill registry."""
+        if cls._skill_registry is None:
+            from skills import SkillRegistry
+            cls._skill_registry = SkillRegistry()
+        return cls._skill_registry
+
+    def load_skill(self, skill_name: str) -> Optional["Skill"]:
+        """Load a skill by name and add it to the agent's active skills."""
+        registry = self.get_skill_registry()
+        skill = registry.get_skill(skill_name)
+
+        if skill:
+            if skill not in self._loaded_skills:
+                self._loaded_skills.append(skill)
+            return skill
+        return None
+
+    def load_applicable_skills(
+        self,
+        task_description: str,
+        file_paths: Optional[list[str]] = None,
+    ) -> list["Skill"]:
+        """Load all skills applicable to the given task."""
+        registry = self.get_skill_registry()
+        skills = registry.get_applicable_skills(task_description, file_paths)
+
+        for skill in skills:
+            if skill not in self._loaded_skills:
+                self._loaded_skills.append(skill)
+
+        return skills
+
+    def get_skills_prompt(self) -> str:
+        """Get combined prompt from all loaded skills."""
+        if not self._loaded_skills:
+            return ""
+
+        parts = ["# Active Skills Protocol", ""]
+
+        for skill in self._loaded_skills:
+            prompt = skill.get_full_prompt()
+            if prompt:
+                parts.append(f"## {skill.metadata.name}")
+                parts.append(prompt)
+                parts.append("")
+
+        return "\n".join(parts)
+
+    def get_loaded_skills(self) -> list["Skill"]:
+        """Get list of currently loaded skills."""
+        return self._loaded_skills.copy()
+
+    def clear_skills(self) -> None:
+        """Clear all loaded skills."""
+        self._loaded_skills.clear()
 
     @property
     def agent_id(self) -> str:

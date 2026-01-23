@@ -46,6 +46,14 @@ from spec.context import run_context_discovery, load_context
 from spec.complexity import run_complexity_assessment, load_assessment
 from spec.impact import run_impact_analysis, load_impact_analysis
 
+try:
+    from skills import SkillRegistry, Skill
+    SKILLS_AVAILABLE = True
+except ImportError:
+    SKILLS_AVAILABLE = False
+    SkillRegistry = None
+    Skill = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -75,6 +83,7 @@ class PipelineState:
     phases_executed: list[str] = field(default_factory=list)
     started_at: datetime = field(default_factory=datetime.now)
     completed_at: datetime | None = None
+    applicable_skills: list[Any] = field(default_factory=list)
 
     def add_result(self, result: PhaseResult) -> None:
         """Add a phase result to the state."""
@@ -333,6 +342,9 @@ class SpecPipeline:
 
     def _phase_spec_writing(self) -> PhaseResult:
         """Execute spec writing phase."""
+        # Discover applicable skills before generating spec
+        self._discover_applicable_skills()
+
         # Generate specification document
         spec_path = self.state.spec_dir / "spec.md"
 
@@ -341,6 +353,19 @@ class SpecPipeline:
 
             with open(spec_path, "w", encoding="utf-8") as f:
                 f.write(spec_content)
+
+            # Save skills configuration if any skills are applicable
+            if self.state.applicable_skills:
+                skills_path = self.state.spec_dir / "skills.json"
+                skills_data = {
+                    "applicable_skills": [
+                        s.metadata.to_dict() if hasattr(s, 'metadata') else {"name": str(s)}
+                        for s in self.state.applicable_skills
+                    ],
+                    "task_description": self.state.task_description,
+                }
+                with open(skills_path, "w", encoding="utf-8") as f:
+                    json.dump(skills_data, f, indent=2)
 
             return PhaseResult(
                 phase_name="spec_writing",
@@ -354,6 +379,39 @@ class SpecPipeline:
                 status=PhaseStatus.FAILED,
                 errors=[str(e)],
             )
+
+    def _discover_applicable_skills(self) -> None:
+        """Discover and load skills applicable to this task."""
+        if not SKILLS_AVAILABLE:
+            logger.debug("Skills system not available")
+            return
+
+        try:
+            registry = SkillRegistry()
+
+            # Get file paths from context
+            file_paths = []
+            if self.state.context:
+                file_paths.extend(
+                    f.relative_path for f in (self.state.context.files_to_modify or [])
+                )
+
+            # Discover applicable skills
+            skills = registry.get_applicable_skills(
+                self.state.task_description,
+                file_paths,
+            )
+
+            self.state.applicable_skills = skills
+
+            if skills:
+                logger.info(
+                    f"Discovered {len(skills)} applicable skill(s): "
+                    f"{', '.join(s.metadata.name for s in skills)}"
+                )
+
+        except Exception as e:
+            logger.warning(f"Failed to discover skills: {e}")
 
     def _phase_validation(self) -> PhaseResult:
         """Execute validation phase."""
@@ -522,6 +580,21 @@ class SpecPipeline:
                 for mitigation in self.state.impact.recommended_mitigations:
                     lines.append(f"- {mitigation}")
                 lines.append("")
+
+        # Active Skills
+        if self.state.applicable_skills:
+            lines.append("## Active Skills")
+            lines.append("")
+            lines.append("The following skills are automatically applied for this task:")
+            lines.append("")
+            for skill in self.state.applicable_skills:
+                if hasattr(skill, 'metadata'):
+                    lines.append(f"- **{skill.metadata.name}**: {skill.metadata.description}")
+                    if skill.metadata.tags:
+                        lines.append(f"  - Tags: {', '.join(skill.metadata.tags)}")
+            lines.append("")
+            lines.append("*Skill protocols will be injected into agent prompts during build phase.*")
+            lines.append("")
 
         # Implementation Plan placeholder
         lines.append("## Implementation Plan")
