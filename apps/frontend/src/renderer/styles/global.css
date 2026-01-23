@@ -1,0 +1,117 @@
+/**
+ * Global Styles for Claude God Code
+ *
+ * Part of Claude God Code - Autonomous Excellence
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  html {
+    @apply h-full;
+  }
+
+  body {
+    @apply h-full bg-god-dark-950 text-god-dark-100;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  #root {
+    @apply h-full;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-god-dark-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-god-dark-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-god-dark-500;
+  }
+
+  /* Selection color */
+  ::selection {
+    @apply bg-god-primary-500/30;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-god-dark-900;
+  }
+
+  .btn-primary {
+    @apply bg-god-primary-600 text-white;
+    @apply hover:bg-god-primary-500;
+    @apply focus:ring-god-primary-500;
+  }
+
+  .btn-secondary {
+    @apply bg-god-dark-700 text-god-dark-100;
+    @apply hover:bg-god-dark-600;
+    @apply focus:ring-god-dark-500;
+  }
+
+  .btn-accent {
+    @apply bg-god-accent-600 text-white;
+    @apply hover:bg-god-accent-500;
+    @apply focus:ring-god-accent-500;
+  }
+
+  .card {
+    @apply bg-god-dark-800/50 backdrop-blur-sm rounded-xl border border-god-dark-700/50;
+    @apply shadow-lg shadow-black/20;
+  }
+
+  .input {
+    @apply bg-god-dark-900 border border-god-dark-700 rounded-lg px-4 py-2;
+    @apply text-god-dark-100 placeholder-god-dark-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-god-primary-500 focus:border-transparent;
+    @apply transition-all duration-200;
+  }
+
+  /* Status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-connected {
+    @apply bg-green-500 shadow-lg shadow-green-500/50;
+  }
+
+  .status-disconnected {
+    @apply bg-red-500 shadow-lg shadow-red-500/50;
+  }
+
+  .status-pending {
+    @apply bg-yellow-500 shadow-lg shadow-yellow-500/50 animate-pulse;
+  }
+}
+
+/* Utility classes */
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-god-primary-400 to-god-accent-400;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px rgba(217, 70, 239, 0.3);
+  }
+}
